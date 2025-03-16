@@ -24,7 +24,7 @@ const SignUp = () => {
     setErrorMessage(''); // Clear any previous error message
 
     try {
-      const response = await axios.post('http://localhost:8080/api/signup', formData);
+      const response = await axios.post('https://csc3916-assignment3-la5q.onrender.com/signup', formData);
       alert(response.data.msg); // Success message from API
 
       // Optionally redirect to SignIn page after successful signup
