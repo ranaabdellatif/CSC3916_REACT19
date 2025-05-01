@@ -49,47 +49,36 @@ export function fetchMovie(movieId) {
         }).catch((e) => console.log(e));
     }
 }
-/*
 export function fetchMovies() {
     return dispatch => {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            console.log("Token not found. Please log in.");
+            return;
+        }
+
         return fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token')
-            },
-            mode: 'cors'
-        }).then((response) => {
-            if (!response.ok) {
-                throw Error(response.statusText);
-            }
-            return response.json()
-        }).then((res) => {
-            console.log("Movies fetched:", res);  // ✅ Add this line
-            dispatch(moviesFetched(res));
-        }).catch((e) => console.log(e));
-    }
-}
-*/
-export function fetchMovies() {
-    const token = localStorage.getItem('token');
-    if (token) {
-        fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`, // Attach token as Bearer
+                'Authorization': `Bearer ${token}`,
             },
             mode: 'cors',
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log("Movies fetched:", data);
             dispatch(moviesFetched(data));
         })
-        .catch(err => console.log(err));
-    } else {
-        console.log("Token not found. Please log in.");
-    }
+        .catch(err => {
+            console.error("Error fetching movies:", err);
+        });
+    };
 }
