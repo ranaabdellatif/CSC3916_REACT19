@@ -11,14 +11,14 @@ function moviesFetched(movies) {
 
 function movieFetched(movie) {
     return {
-        type: actionTypes.FETCH_MOVIES,
+        type: actionTypes.FETCH_MOVIE,
         selectedMovie: movie
     }
 }
 
 function movieSet(movie) {
     return {
-        type: actionTypes.SET_MOVIES,
+        type: actionTypes.SET_MOVIE,
         selectedMovie: movie
     }
 }
@@ -49,7 +49,7 @@ export function fetchMovie(movieId) {
         }).catch((e) => console.log(e));
     }
 }
-
+/*
 export function fetchMovies() {
     return dispatch => {
         return fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
@@ -70,4 +70,24 @@ export function fetchMovies() {
             dispatch(moviesFetched(res));
         }).catch((e) => console.log(e));
     }
+}
+*/
+const token = localStorage.getItem('token');
+if (token) {
+    fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, // Attach token as Bearer
+        },
+        mode: 'cors',
+    })
+    .then(response => response.json())
+    .then(data => {
+        dispatch(moviesFetched(data));
+    })
+    .catch(err => console.log(err));
+} else {
+    console.log("Token not found. Please log in.");
 }
