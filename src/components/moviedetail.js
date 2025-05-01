@@ -1,123 +1,86 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { fetchMovie } from '../actions/movieActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, ListGroup, ListGroupItem, Image, Form, Button } from 'react-bootstrap';
+import { Card, ListGroup, Row, Col, Image, Container, Table } from 'react-bootstrap';
 import { BsStarFill } from 'react-icons/bs';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 
 const MovieDetail = () => {
   const dispatch = useDispatch();
   const { movieId } = useParams();
-  const selectedMovie = useSelector(state => state.movie.selectedMovie);
-  const loading = useSelector(state => state.movie.loading);
-  const error = useSelector(state => state.movie.error);
-
-  const [rating, setRating] = useState(1);
-  const [review, setReview] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const selectedMovie = useSelector((state) => state.movie.selectedMovie);
+  const loading = useSelector((state) => state.movie.loading);
+  const error = useSelector((state) => state.movie.error);
 
   useEffect(() => {
     dispatch(fetchMovie(movieId));
   }, [dispatch, movieId]);
 
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    const token = localStorage.getItem("token");
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!selectedMovie) return <p>No movie found.</p>;
 
-    try {
-      await axios.post(
-        `/movies/${movieId}/reviews`,
-        { rating, review },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setRating(1);
-      setReview("");
-      dispatch(fetchMovie(movieId)); // Refresh movie data
-    } catch (err) {
-      console.error("Error submitting review:", err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  return (
+    <Container className="mt-4">
+      <Card className="bg-light shadow-sm p-3 rounded">
+        <Row>
+          <Col md={4}>
+            {selectedMovie.imageUrl ? (
+              <Image src={selectedMovie.imageUrl} alt="Movie Poster" fluid rounded />
+            ) : (
+              <p>No image available</p>
+            )}
+          </Col>
+          <Col md={8}>
+            <h2>{selectedMovie.title}</h2>
+            <p><strong>Genre:</strong> {selectedMovie.genre}</p>
+            <p><strong>Release Year:</strong> {selectedMovie.releaseDate}</p>
+            <h5 className="d-flex align-items-center">
+              <BsStarFill className="text-warning me-2" />
+              {selectedMovie.avgRating ? selectedMovie.avgRating.toFixed(1) : 'No rating yet'}
+            </h5>
+            <hr />
+            <h5>Actors</h5>
+            <ListGroup variant="flush">
+              {selectedMovie.actors.map((actor) => (
+                <ListGroup.Item key={actor._id}>
+                  <strong>{actor.actorName}</strong> as <em>{actor.characterName}</em>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Col>
+        </Row>
 
-  const DetailInfo = () => {
-    if (loading) return <div>Loading....</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!selectedMovie) return <div>No movie data available.</div>;
+        <hr />
 
-    return (
-      <Card className="bg-dark text-dark p-4 rounded">
-        <Card.Header>Movie Detail</Card.Header>
-        <Card.Body>
-          <Image className="image" src={selectedMovie.imageUrl} thumbnail />
-        </Card.Body>
-        <ListGroup>
-          <ListGroupItem>{selectedMovie.title}</ListGroupItem>
-          <ListGroupItem>
-            {selectedMovie.actors.map((actor, i) => (
-              <p key={i}>
-                <b>{actor.actorName}</b> {actor.characterName}
-              </p>
-            ))}
-          </ListGroupItem>
-          <ListGroupItem>
-            <h4>
-              <BsStarFill /> {selectedMovie.avgRating || "N/A"}
-            </h4>
-          </ListGroupItem>
-        </ListGroup>
-        <Card.Body>
-          <h5>Reviews</h5>
-          {selectedMovie.reviews.length > 0 ? (
-            selectedMovie.reviews.map((review, i) => (
-              <p key={i}>
-                <b>{review.username}</b> {review.review} <BsStarFill /> {review.rating}
-              </p>
-            ))
-          ) : (
-            <p>No reviews yet.</p>
-          )}
-
-          <hr />
-          <h5>Leave a Review</h5>
-          <Form onSubmit={handleReviewSubmit}>
-            <Form.Group controlId="reviewText">
-              <Form.Label>Review</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={review}
-                onChange={(e) => setReview(e.target.value)}
-                required
-              />
-            </Form.Group>
-
-            <Form.Group controlId="ratingSelect">
-              <Form.Label>Rating</Form.Label>
-              <Form.Control
-                as="select"
-                value={rating}
-                onChange={(e) => setRating(parseInt(e.target.value))}
-                required
-              >
-                {[1, 2, 3, 4, 5].map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-
-            <Button variant="primary" type="submit" disabled={submitting}>
-              {submitting ? "Submitting..." : "Submit Review"}
-            </Button>
-          </Form>
-        </Card.Body>
+        <h4 className="mt-4">Reviews</h4>
+        {selectedMovie.reviews && selectedMovie.reviews.length > 0 ? (
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Rating</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedMovie.reviews.map((review) => (
+                <tr key={review._id}>
+                  <td>{review.username}</td>
+                  <td>
+                    <BsStarFill className="text-warning" /> {review.rating}
+                  </td>
+                  <td>{review.review}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <p>No reviews yet.</p>
+        )}
       </Card>
-    );
-  };
-
-  return <DetailInfo />;
+    </Container>
+  );
 };
 
 export default MovieDetail;
