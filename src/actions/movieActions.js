@@ -72,22 +72,24 @@ export function fetchMovies() {
     }
 }
 */
-const token = localStorage.getItem('token');
-if (token) {
-    fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Attach token as Bearer
-        },
-        mode: 'cors',
-    })
-    .then(response => response.json())
-    .then(data => {
-        dispatch(moviesFetched(data));
-    })
-    .catch(err => console.log(err));
-} else {
-    console.log("Token not found. Please log in.");
+export function fetchMovies() {
+    const token = localStorage.getItem('token');
+    if (token) {
+        fetch(`${env.REACT_APP_API_URL}/movies?reviews=true`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Attach token as Bearer
+            },
+            mode: 'cors',
+        })
+        .then(response => response.json())
+        .then(data => {
+            dispatch(moviesFetched(data));
+        })
+        .catch(err => console.log(err));
+    } else {
+        console.log("Token not found. Please log in.");
+    }
 }
