@@ -11,14 +11,14 @@ function moviesFetched(movies) {
 
 function movieFetched(movie) {
     return {
-        type: actionTypes.FETCH_MOVIE,
+        type: actionTypes.FETCH_MOVIES,
         selectedMovie: movie
     }
 }
 
 function movieSet(movie) {
     return {
-        type: actionTypes.SET_MOVIE,
+        type: actionTypes.SET_MOVIES,
         selectedMovie: movie
     }
 }
