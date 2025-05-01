@@ -52,7 +52,7 @@ export function fetchMovie(movieId) {
 export function fetchMovies() {
     return dispatch => {
         const token = localStorage.getItem('token');
-
+        console.log("Token used:", token);
         if (!token) {
             console.log("Token not found. Please log in.");
             return;
@@ -63,7 +63,7 @@ export function fetchMovies() {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
+                'Authorization': localStorage.getItem('token')
             },
             mode: 'cors',
         })
