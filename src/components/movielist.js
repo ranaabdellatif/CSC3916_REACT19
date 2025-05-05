@@ -41,12 +41,11 @@ function MovieList() {
                 to={`/movie/${movie._id}`}
                 onClick={() => handleClick(movie)}
               >
-                <Image className="image" src={movie.imageUrl} thumbnail />
+                <Image className="image" src={movie.imageURL} thumbnail />
               </Nav.Link>
               <Carousel.Caption>
                 <h3>{movie.title}</h3>
-                <BsStarFill /> {movie.avgRating?.toFixed(1) ?? 'N/A'} &nbsp;&nbsp; {movie.releaseDate}
-
+                <BsStarFill /> {movie.avgRating ? movie.avgRating.toFixed(1) : "Not Rated"} &nbsp;&nbsp; {movie.releaseDate}
               </Carousel.Caption>
             </Carousel.Item>
           ))}

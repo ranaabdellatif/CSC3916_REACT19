@@ -12,7 +12,7 @@ function moviesFetched(movies) {
 function movieFetched(movie) {
     return {
         type: actionTypes.FETCH_MOVIE,
-        selectedMovie: movie
+        selectedMovie: movie.movie
     }
 }
 
@@ -37,10 +37,11 @@ export function fetchMovie(movieId) {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'Authorization': localStorage.getItem('token')
+
             },
             mode: 'cors'
         }).then((response) => {
-            if (!response.ok) {
+            if (!response.status) {
                 throw Error(response.statusText);
             }
             return response.json()
@@ -49,6 +50,7 @@ export function fetchMovie(movieId) {
         }).catch((e) => console.log(e));
     }
 }
+
 export function fetchMovies() {
     return dispatch => {
         const token = localStorage.getItem('token');

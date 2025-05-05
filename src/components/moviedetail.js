@@ -1,86 +1,83 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fetchMovie } from '../actions/movieActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, ListGroup, Row, Col, Image, Container, Table } from 'react-bootstrap';
+import { Card, ListGroup, ListGroupItem, Image, Button } from 'react-bootstrap';
 import { BsStarFill } from 'react-icons/bs';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom'; // Import useParams
+import Review from "../components/review"
 
 const MovieDetail = () => {
   const dispatch = useDispatch();
-  const { movieId } = useParams();
-  const selectedMovie = useSelector((state) => state.movie.selectedMovie);
-  const loading = useSelector((state) => state.movie.loading);
-  const error = useSelector((state) => state.movie.error);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const { movieId } = useParams(); // Get movieId from URL parameters
+  const selectedMovie = useSelector(state => state.movie.selectedMovie);
+  const loading = useSelector(state => state.movie.loading); // Assuming you have a loading state in your reducer
+  const error = useSelector(state => state.movie.error); // Assuming you have an error state in your reducer
 
   useEffect(() => {
     dispatch(fetchMovie(movieId));
   }, [dispatch, movieId]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!selectedMovie) return <p>No movie found.</p>;
+  useEffect(() => {
+    if (!refresh) { return; }
+    dispatch(fetchMovie(movieId));
+    setShowReviewForm(false);
+    setRefresh(false);
+  }, [dispatch, movieId, refresh]);
 
-  return (
-    <Container className="mt-4">
-      <Card className="bg-light shadow-sm p-3 rounded">
-        <Row>
-          <Col md={4}>
-            {selectedMovie.imageURL ? (
-              <Image src={selectedMovie.imageURL} alt="Movie Poster" fluid rounded />
-            ) : (
-              <p>No image available</p>
-            )}
-          </Col>
-          <Col md={8}>
-            <h2>{selectedMovie.title}</h2>
-            <p><strong>Genre:</strong> {selectedMovie.genre}</p>
-            <p><strong>Release Year:</strong> {selectedMovie.releaseDate}</p>
-            <h5 className="d-flex align-items-center">
-              <BsStarFill className="text-warning me-2" />
-              {selectedMovie.avgRating ? selectedMovie.avgRating.toFixed(1) : 'No rating yet'}
-            </h5>
-            <hr />
-            <h5>Actors</h5>
-            <ListGroup variant="flush">
-              {selectedMovie.actors.map((actor) => (
-                <ListGroup.Item key={actor._id}>
-                  <strong>{actor.actorName}</strong> as <em>{actor.characterName}</em>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-          </Col>
-        </Row>
+  const DetailInfo = () => {
 
-        <hr />
+    if (loading) {
+      return <div>Loading....</div>;
+    }
 
-        <h4 className="mt-4">Reviews</h4>
-        {selectedMovie.reviews && selectedMovie.reviews.length > 0 ? (
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Rating</th>
-                <th>Review</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedMovie.reviews.map((review) => (
-                <tr key={review._id}>
-                  <td>{review.username}</td>
-                  <td>
-                    <BsStarFill className="text-warning" /> {review.rating}
-                  </td>
-                  <td>{review.review}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          <p>No reviews yet.</p>
-        )}
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+
+    if (!selectedMovie) {
+      return <div>No movie data available.</div>;
+    }
+
+    return (
+      <Card className="bg-dark text-dark p-4 rounded">
+        <Card.Body>
+          <Image className="image" src={selectedMovie.imageURL} thumbnail />
+        </Card.Body>
+        <ListGroup>
+          <ListGroupItem>{selectedMovie.title}</ListGroupItem>
+          <ListGroupItem>
+            {selectedMovie.actors.map((actor, i) => (
+              <p key={i}>
+                <b>{actor.actorName}</b> {actor.characterName}
+              </p>
+            ))}
+          </ListGroupItem>
+          <ListGroupItem>
+            <h4>
+              <BsStarFill /> {selectedMovie.avgRating ? selectedMovie.avgRating.toFixed(1) : "Not Rated"}
+            </h4>
+          </ListGroupItem>
+        </ListGroup>
+        <Card.Body className="card-body bg-white">
+          {selectedMovie.movieReviews.map((review, i) => (
+            <p key={i}>
+              <b>{review.username}</b>&nbsp; {review.review} &nbsp; <BsStarFill />{' '}
+              {review.rating}
+            </p>
+          ))}
+        </Card.Body>
+        <Card.Body className="card-body bg-white">
+            {!showReviewForm && <Button onClick={() => setShowReviewForm(true)}> Review Movie </Button>}
+            {showReviewForm && <Review movieId={movieId} setRefresh={setRefresh} />}
+        </Card.Body>
       </Card>
-    </Container>
-  );
+    );
+  };
+
+  return <DetailInfo />;
 };
+
 
 export default MovieDetail;

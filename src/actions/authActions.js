@@ -30,10 +30,9 @@ export function submitLogin(data) {
                 throw Error(response.statusText);
             }
             return response.json()
-        }).then((data) => {
+        }).then((res) => {
             localStorage.setItem('username', data.username);
-            localStorage.setItem('token', data.token);
-            console.log('Token saved:', data.token);
+            localStorage.setItem('token', res.token);
 
             dispatch(userLoggedIn(data.username));
         }).catch((e) => console.log(e));
