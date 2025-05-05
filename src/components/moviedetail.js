@@ -25,8 +25,8 @@ const MovieDetail = () => {
       <Card className="bg-light shadow-sm p-3 rounded">
         <Row>
           <Col md={4}>
-            {selectedMovie.imageUrl ? (
-              <Image src={selectedMovie.imageUrl} alt="Movie Poster" fluid rounded />
+            {selectedMovie.imageURL ? (
+              <Image src={selectedMovie.imageURL} alt="Movie Poster" fluid rounded />
             ) : (
               <p>No image available</p>
             )}

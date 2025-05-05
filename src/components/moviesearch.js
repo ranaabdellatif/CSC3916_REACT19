@@ -56,7 +56,7 @@ const MovieSearch = () => {
               {movie.imageUrl && (
                 <Card.Img
                   variant="top"
-                  src={movie.imageUrl}
+                  src={movie.imageURL}
                   style={{ height: '250px', objectFit: 'cover' }}
                 />
               )}
